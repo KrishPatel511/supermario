@@ -1,6 +1,10 @@
 <div align="center">
 
-# 🍄 Riko & the Emberleaf Meadow
+<img src="public/logo.svg" alt="Emberleaf logo" width="96" />
+
+# EMBERLEAF
+
+**The Legend of Riko**
 
 ### An original 8-bit platformer — 10 heroes · 4 worlds · 16 stages
 
@@ -39,7 +43,7 @@ Plays instantly in the browser on desktop, tablet and phone.
 
 ## 🎯 About the Game
 
-*Riko & the Emberleaf Meadow* is a 2D side-scrolling platformer in the spirit of classic 8-bit adventures.
+*EMBERLEAF: The Legend of Riko* is a 2D side-scrolling platformer in the spirit of classic 8-bit adventures.
 Pick one of ten heroes, run and jump through four themed worlds, stomp enemies, bump blocks for coins and
 power-ups, and reach the flagpole at the end of each stage. World 4 ends with a boss fight.
 

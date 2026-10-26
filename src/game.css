@@ -1,0 +1,442 @@
+/* ------------------------------------------------------------------ */
+/* In-game screen: responsive 16:9 cabinet, HUD and touch controls     */
+/* ------------------------------------------------------------------ */
+
+.game-stage {
+  --hdr: 34px;
+  /* Cabinet width: as wide as fits, never taller than the space left under the header */
+  --cab-w: min(100vw - 8px, (100dvh - var(--hdr) - 8px) * 16 / 9, 1280px);
+  --u: calc(var(--cab-w) / 100); /* 1% of the cabinet width, used to scale HUD text */
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: radial-gradient(circle at center, #1a233a 0%, #0d111a 70%, #05070a 100%);
+  overflow: hidden;
+}
+
+.game-stage-grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 208, 0, 0.15) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.game-stage-header {
+  position: relative;
+  z-index: 10;
+  height: calc(var(--hdr) - 6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  max-width: 100%;
+  padding: 0 8px;
+  font-family: var(--font-retro);
+  font-size: clamp(7px, 1.6vw, 11px);
+  color: #fff;
+  white-space: nowrap;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.game-stage-title {
+  color: #ffd000;
+  text-shadow: 2px 2px 0 #000, 0 0 12px rgba(255, 208, 0, 0.6);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.game-stage-dot {
+  color: #00e000;
+}
+
+.game-cabinet {
+  position: relative;
+  z-index: 10;
+  width: var(--cab-w);
+  aspect-ratio: 16 / 9;
+  border: 3px solid #ffd000;
+  border-radius: 6px;
+  box-shadow: 0 0 35px rgba(255, 208, 0, 0.35), 0 16px 60px rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+  background-color: #1d1d2b;
+  touch-action: none;
+}
+
+.game-canvas-host {
+  position: absolute;
+  inset: 0;
+}
+
+.game-canvas-host canvas {
+  display: block;
+  touch-action: none;
+}
+
+.rotate-hint {
+  display: none;
+  position: relative;
+  z-index: 10;
+  font-size: 7px;
+  color: #ffd000;
+  text-shadow: 1px 1px 0 #000;
+  text-align: center;
+  padding: 0 12px;
+}
+
+/* ---- HUD ---- */
+
+.hud-top {
+  position: absolute;
+  top: calc(var(--u) * 0.8);
+  left: calc(var(--u) * 1.2);
+  right: calc(var(--u) * 1.2);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 0.6);
+  pointer-events: none;
+  font-family: var(--font-retro);
+  font-size: clamp(6px, calc(var(--u) * 0.85), 12px);
+  line-height: 1.7;
+  color: #fff;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.hud-score-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.hud-coins {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hud-coins img {
+  width: clamp(8px, calc(var(--u) * 1.2), 16px);
+  height: clamp(8px, calc(var(--u) * 1.2), 16px);
+  image-rendering: pixelated;
+}
+
+.hud-sub-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  pointer-events: auto;
+}
+
+.hud-btn-group {
+  display: flex;
+  gap: 6px;
+}
+
+.hud-btn {
+  padding: clamp(2px, calc(var(--u) * 0.4), 5px) clamp(4px, calc(var(--u) * 0.8), 9px) !important;
+  font-size: clamp(6px, calc(var(--u) * 0.7), 9px) !important;
+  box-shadow: 2px 2px 0 #000 !important;
+}
+
+.hud-special {
+  font-size: clamp(5px, calc(var(--u) * 0.65), 9px);
+  background-color: #ffcc00;
+  color: #000;
+  padding: 3px 7px;
+  border: 2px solid #000;
+  box-shadow: 2px 2px 0 #000;
+  text-shadow: none;
+  white-space: nowrap;
+}
+
+.hud-special-cd {
+  background-color: #444;
+  color: #aaa;
+}
+
+.hud-lives {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.hud-lives img {
+  width: clamp(10px, calc(var(--u) * 1.5), 20px);
+  height: clamp(10px, calc(var(--u) * 1.5), 20px);
+  image-rendering: pixelated;
+}
+
+.hud-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * 1.4);
+  padding: calc(var(--u) * 2);
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-family: var(--font-retro);
+  font-size: clamp(7px, calc(var(--u) * 0.9), 12px);
+  text-align: center;
+  overflow-y: auto;
+}
+
+.hud-title {
+  font-size: clamp(11px, calc(var(--u) * 1.8), 22px);
+  line-height: 1.4;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.hud-text {
+  color: #48e048;
+  font-size: clamp(7px, calc(var(--u) * 1), 13px);
+}
+
+.hud-hint {
+  color: #aaa;
+  font-size: clamp(5px, calc(var(--u) * 0.7), 9px);
+}
+
+.hud-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.hud-actions .retro-btn {
+  font-size: clamp(6px, calc(var(--u) * 0.85), 11px);
+  padding: clamp(5px, calc(var(--u) * 0.8), 10px) clamp(7px, calc(var(--u) * 1.2), 16px);
+}
+
+.hud-clear-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--u) * 1);
+  max-width: 96%;
+  padding: calc(var(--u) * 1.6) calc(var(--u) * 2.4);
+  background: rgba(5, 5, 12, 0.95);
+  border: 4px solid #ffcc00;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.85);
+}
+
+.hud-clear-card-final {
+  border-color: #ffd000;
+  box-shadow: 0 0 45px rgba(255, 208, 0, 0.6), 0 8px 30px rgba(0, 0, 0, 0.95);
+}
+
+.hud-quote {
+  border: 2px dashed #ffd000;
+  padding: calc(var(--u) * 0.9) calc(var(--u) * 1.2);
+  line-height: 1.8;
+}
+
+/* ---- Touch controls ---- */
+
+.touch-controls {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 25;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 calc(var(--u) * 2) calc(var(--u) * 2);
+  pointer-events: none;
+}
+
+.touch-pad {
+  display: flex;
+  gap: calc(var(--u) * 1.5);
+  align-items: flex-end;
+}
+
+.touch-btn {
+  pointer-events: auto;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  font-family: var(--font-retro);
+  color: #fff;
+  background: rgba(20, 24, 40, 0.55);
+  border: 3px solid rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  width: clamp(44px, calc(var(--u) * 8), 84px);
+  height: clamp(44px, calc(var(--u) * 8), 84px);
+  font-size: clamp(14px, calc(var(--u) * 2.4), 26px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.touch-btn:active {
+  background: rgba(255, 208, 0, 0.7);
+  color: #000;
+}
+
+.touch-btn-jump {
+  width: clamp(54px, calc(var(--u) * 10), 104px);
+  height: clamp(54px, calc(var(--u) * 10), 104px);
+  font-size: clamp(8px, calc(var(--u) * 1.5), 15px);
+  background: rgba(230, 0, 18, 0.55);
+}
+
+.touch-btn-special {
+  font-size: clamp(11px, calc(var(--u) * 2), 22px);
+  background: rgba(255, 208, 0, 0.45);
+  color: #000;
+  margin-bottom: calc(var(--u) * 4);
+}
+
+/* Portrait phones: the 16:9 screen is small, so dock the controls below it */
+@media (orientation: portrait) {
+  .game-stage {
+    justify-content: flex-start;
+    padding-top: 10dvh;
+  }
+
+  .rotate-hint {
+    display: block;
+  }
+
+  .touch-controls {
+    position: fixed;
+    inset: auto 0 0 0;
+    padding: 0 16px calc(16px + env(safe-area-inset-bottom));
+  }
+
+  .touch-btn {
+    width: 72px;
+    height: 72px;
+    font-size: 24px;
+  }
+
+  .touch-btn-jump {
+    width: 88px;
+    height: 88px;
+    font-size: 13px;
+  }
+
+  .touch-btn-special {
+    margin-bottom: 40px;
+    font-size: 20px;
+  }
+}
+
+/* Very short landscape phones: drop the title header to give the game every pixel */
+@media (orientation: landscape) and (max-height: 500px) {
+  .game-stage {
+    --hdr: 0px;
+    gap: 0;
+  }
+
+  .game-stage-header {
+    display: none;
+  }
+
+  .game-cabinet {
+    border-width: 2px;
+  }
+}
+
+/* Modals on small screens */
+@media (max-width: 640px), (max-height: 520px) {
+  .retro-modal-backdrop {
+    padding: 8px;
+  }
+
+  .retro-modal-content {
+    padding: 12px;
+    gap: 10px;
+    max-height: 96dvh;
+    overflow-y: auto;
+  }
+
+  .retro-modal-title {
+    font-size: 11px;
+  }
+}
+
+/* Short landscape screens: keep the main menu inside the viewport */
+@media (max-height: 560px) {
+  .retro-title-container {
+    margin-top: 2px;
+  }
+
+  .retro-title-text {
+    font-size: 9px;
+  }
+
+  .mario-character-container {
+    display: none;
+  }
+
+  .retro-menu-card {
+    padding: 8px;
+    gap: 5px;
+  }
+
+  .retro-progress-text {
+    display: none;
+  }
+
+  .retro-tags-row {
+    display: none;
+  }
+}
+
+/* ---- Hero select modal: stack on narrow screens, scroll on short ones ---- */
+
+.hero-select-modal-container {
+  max-height: 96dvh;
+  overflow-y: auto;
+}
+
+@media (max-width: 640px) {
+  .hero-detail-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .hero-roster-grid {
+    grid-template-columns: repeat(5, 1fr) !important;
+  }
+
+  .hero-action-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .hero-action-grid > :first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-height: 520px) and (min-width: 641px) {
+  .hero-select-modal-container {
+    padding: 8px !important;
+    gap: 6px !important;
+  }
+}
+
+/* ---- World map modal ---- */
+
+.world-map-modal-container {
+  max-height: 96dvh;
+  overflow-y: auto;
+}
+
+@media (max-width: 640px) {
+  .world-map-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
